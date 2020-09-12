@@ -64,7 +64,7 @@ class GlobalState {
     qbn_.setIdentity();
     ba_.setZero();
     bw_.setZero();
-    gn_ << 0.0, 0.0, -G0;
+    gn_ << 0.0, 0.0, G0;
   }
 
   // boxPlus operator

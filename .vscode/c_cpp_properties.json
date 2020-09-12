@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/xw/catkin_lins/devel/include/**",
+                "/home/xw/catkin_loam/devel/include/**",
+                "/opt/ros/melodic/include/**",
+                "/home/xw/catkin_lins/src/LINS---LiDAR-inertial-SLAM/lins/include/**",
+                "/home/xw/catkin_loam/src/livox_mapping/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/opt/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}

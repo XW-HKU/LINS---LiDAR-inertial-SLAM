@@ -49,6 +49,8 @@ using namespace sensor_utils;
 using namespace parameter;
 using namespace filter;
 
+#define NORMAL_EKF
+
 namespace fusion {
 
 const int LINE_NUM_ = 16;
@@ -272,9 +274,9 @@ class StateEstimator {
   /********Relative Variables*********/
   double duration_fea_ = 0;
   double duration_opt_ = 0;
-  double num_of_edge_ = 0;
-  double num_of_surf_ = 0;
-  int lidar_counter_ = 0;
+  double num_of_edge_  = 0;
+  double num_of_surf_  = 0;
+  int lidar_counter_   = 0;
   /***********************************/
   void processPCL(double time, const Imu& imu,
                   pcl::PointCloud<PointType>::Ptr distortedPointCloud,
@@ -433,6 +435,10 @@ class StateEstimator {
   void correctOrientation(const Q4D& quad) { globalState_.qbn_ = quad; }
 
   bool processScan() {
+    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
+
+    std::cout<<"Number of Points: "<<scan_new_->cornerPointsLessSharp_->points.size()<<std::endl;
+
     if (scan_new_->cornerPointsLessSharp_->points.size() <= 5 ||
         scan_new_->surfPointsLessFlat_->points.size() <= 10) {
       ROS_WARN("Insufficient features...State estimation fails.");
@@ -458,6 +464,9 @@ class StateEstimator {
     // Slide the new scan to last scan
     scan_last_.swap(scan_new_);
     scan_new_.reset(new Scan());
+
+    std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - start;
+    std::cout<<"EKF dur: "<<elapsed_seconds.count()<<std::endl;
 
     return true;
   }
@@ -505,6 +514,9 @@ class StateEstimator {
 
       // Memery allocation
       const unsigned int DIM_OF_MEAS = keypoints_->points.size();
+
+      // std::cout<<"DIM_OF_MEAS: "<<DIM_OF_MEAS<<std::endl;
+
       residual_.resize(DIM_OF_MEAS);
       Hk_.resize(DIM_OF_MEAS, DIM_OF_STATE);
       Rk_.resize(DIM_OF_MEAS, DIM_OF_MEAS);
@@ -539,14 +551,19 @@ class StateEstimator {
       Rk_ = cov.asDiagonal();
 
       // Kalman filter update. Details can be referred to ROVIO
+      #ifdef NORMAL_EKF
       Py_ =
           Hk_ * Pk_ * Hk_.transpose() + Rk_;  // S = H * P * H.transpose() + R;
       Pyinv_.setIdentity();                   // solve Ax=B
       Py_.llt().solveInPlace(Pyinv_);
       Kk_ = Pk_ * Hk_.transpose() * Pyinv_;  // K = P*H.transpose()*S.inverse()
+      #else
+      auto &&Hk_T = Hk_.transpose();
+      Kk_ = (Hk_T * Hk_ + (Pk_ / (LIDAR_STD * LIDAR_STD)).inverse()).inverse() * Hk_T;
+      #endif
 
       filterState.boxMinus(linState_, difVecLinInv_);
-      updateVec_ = -Kk_ * (residual_ + Hk_ * difVecLinInv_) + difVecLinInv_;
+      updateVec_ = - Kk_ * (residual_ + Hk_ * difVecLinInv_) + difVecLinInv_;
 
       // Divergence determination
       bool hasNaN = false;
@@ -579,6 +596,12 @@ class StateEstimator {
 
       residualNorm = residual_.norm();
     }
+
+    std::cout<<"pos    : "<<filterState.rn_.transpose()<<std::endl;
+    std::cout<<"vel    : "<<filterState.vn_.transpose()<<std::endl;
+    std::cout<<"ba     : "<<filterState.ba_.transpose()<<std::endl;
+    std::cout<<"bg     : "<<filterState.bw_.transpose()<<std::endl;
+    std::cout<<"gravity: "<<filterState.gn_.transpose()<<std::endl;
 
     // If diverges, swtich to traditional ICP method to get a rough relative
     // transformation. Otherwise, update the error-state covariance matrix
@@ -622,6 +645,7 @@ class StateEstimator {
     pcl::PointCloud<PointType>::Ptr distPointCloud = scan->distPointCloud_;
     cloud_msgs::cloud_info::Ptr segInfo = scan->cloudInfo_;
     int size = distPointCloud->points.size();
+    std::cout<<"size of origin points:"<<size<<std::endl;
     PointType point;
     for (int i = 0; i < size; i++) {
       // If LiDAR frame does not align with Vehic frame, we transform the point
