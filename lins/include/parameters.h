@@ -60,7 +60,7 @@ typedef Eigen::Quaterniond Q4D;
 namespace parameter {
 
 /*!@EARTH COEFFICIENTS */
-const double G0 = 9.81;                  // gravity
+const double G0 = 9.8099;                  // gravity
 const double deg = M_PI / 180.0;         // degree
 const double rad = 180.0 / M_PI;         // radian
 const double dph = deg / 3600.0;         // degree per hour

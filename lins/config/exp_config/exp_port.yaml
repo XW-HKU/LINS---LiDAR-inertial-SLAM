@@ -9,13 +9,13 @@ imu_misalign_angle: 3.0
 line_num: 16 
 scan_num: 1800
 scan_period: 0.1
-edge_threshold: 0.5
-surf_threshold: 0.5
+edge_threshold: 0.05
+surf_threshold: 0.05
 nearest_feature_search_sq_dist: 25
 verbose: 0
 icp_freq: 1
 max_lidar_nums: 200000
-num_iter: 30
+num_iter: 15
 lidar_scale: 1
 lidar_std: 0.01
 

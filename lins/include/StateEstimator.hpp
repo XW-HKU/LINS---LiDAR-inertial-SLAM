@@ -597,11 +597,11 @@ class StateEstimator {
       residualNorm = residual_.norm();
     }
 
-    std::cout<<"pos    : "<<filterState.rn_.transpose()<<std::endl;
-    std::cout<<"vel    : "<<filterState.vn_.transpose()<<std::endl;
-    std::cout<<"ba     : "<<filterState.ba_.transpose()<<std::endl;
-    std::cout<<"bg     : "<<filterState.bw_.transpose()<<std::endl;
-    std::cout<<"gravity: "<<filterState.gn_.transpose()<<std::endl;
+    std::cout<<"pos    : "<<linState_.rn_.transpose()<<std::endl;
+    std::cout<<"vel    : "<<linState_.vn_.transpose()<<std::endl;
+    std::cout<<"ba     : "<<linState_.ba_.transpose()<<std::endl;
+    std::cout<<"bg     : "<<linState_.bw_.transpose()<<std::endl;
+    std::cout<<"gravity: "<<linState_.gn_.transpose()<<std::endl;
 
     // If diverges, swtich to traditional ICP method to get a rough relative
     // transformation. Otherwise, update the error-state covariance matrix

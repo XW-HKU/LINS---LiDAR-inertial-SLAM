@@ -232,7 +232,7 @@ bool LinsFusion::processPointClouds() {
     double dt =
         std::min(imuBuf_.itMeas_->first, scan_time_) - estimator->getTime();
     Imu imu = imuBuf_.itMeas_->second;
-    estimator->processImu(dt, imu.acc, imu.gyr);
+    estimator->processImu(dt, imu.acc * 9.9684, imu.gyr);
   }
 
   Imu imu;

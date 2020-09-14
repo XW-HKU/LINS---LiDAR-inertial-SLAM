@@ -139,6 +139,7 @@ class StatePredictor {
     Q4D dq = axis2Quat(un_gyr * dt);
     state_tmp.qbn_ = (state_tmp.qbn_ * dq).normalized();
     V3D un_acc_1 = state_tmp.qbn_ * (acc - state_tmp.ba_) + state_tmp.gn_;
+    std::cout<<"acc: "<<acc.transpose()<<" gravity: "<<state_tmp.gn_.transpose()<<std::endl;
     V3D un_acc = 0.5 * (un_acc_0 + un_acc_1);
 
     // State integral
